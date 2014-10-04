@@ -15,16 +15,3 @@ CREATE TABLE users (
   userName varchar(255),
   PRIMARY KEY(id)
 );
-
-/* Create other tables and define schemas for them here! */
-
-
-
-
-/*  Execute this file from the command line by typing:
- *    mysql < schema.sql
- *  to create the database and the tables.*/
-
-
-
-

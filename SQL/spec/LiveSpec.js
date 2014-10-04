@@ -10,15 +10,13 @@ describe("Persistent Node Chat Server", function() {
 
   beforeEach(function(done) {
     dbConnection = mysql.createConnection({
-      // TODO: Fill this out with your mysql username
       user: "KevinPeter",
-      // and password.
       password: "puppies4lyfe",
       database: "chat"
     });
     dbConnection.connect();
 
-    var tablename = "messages"; // TODO: fill this out
+    var tablename = "messages";
 
     /* Empty the db table before each test so that multiple tests
      * (or repeated runs of the tests) won't screw each other up: */
@@ -38,23 +36,13 @@ describe("Persistent Node Chat Server", function() {
                     roomname: "Hello"}
             },
             function () {
-              /* Now if we look in the database, we should find the
-               * posted message there. */
-
-              var queryString = "SELECT * FROM messages";
-              var queryArgs = ['messageId', 'messageText', 'userId', 'roomName'];
-              /* TODO: Change the above queryString & queryArgs to match your schema design
-               * The exact query string and query args to use
-               * here depend on the schema you design, so I'll leave
-               * them up to you. */
+              var queryString = "SELECT * FROM messages INNER JOIN users ON users.id = messages.userId WHERE userName = ?";
+              var queryArgs = ['Valjean'];
               dbConnection.query( queryString, queryArgs,
                 function(err, results) {
                   // Should have one result:
                   expect(results.length).to.equal(1);
-                  expect(results[0].text).to.equal("In mercy's name, three days is all I need.");
-                  /* TODO: You will need to change these tests if the
-                   * column names in your schema are different from
-                   * mine! */
+                  expect(results[0].messageText).to.equal("In mercy's name, three days is all I need.");
 
                   done();
                 });
@@ -62,23 +50,18 @@ describe("Persistent Node Chat Server", function() {
   });
 
   it("Should output all messages from the DB", function(done) {
-    // Let's insert a message into the db
-    var queryString = "";
-    var queryArgs = [];
-    /* TODO - The exact query string and query args to use
-     * here depend on the schema you design, so I'll leave
-     * them up to you. */
+    var queryString = "SELECT * FROM messages INNER JOIN users ON users.id = messages.userId WHERE users.userName = ?";
+    var queryArgs = ['Valjean'];
 
+    dbConnection.query('INSERT INTO messages (messageText, userId, roomName) VALUES ( ?, ?, ?);', ["Men like you can never change!", 6, "main"] );
     dbConnection.query( queryString, queryArgs,
       function(err) {
         if (err) { throw err; }
-        /* Now query the Node chat server and see if it returns
-         * the message we just inserted: */
         request("http://127.0.0.1:3000/classes/messages",
           function(error, response, body) {
             var messageLog = JSON.parse(body);
-            expect(messageLog[0].text).to.equal("Men like you can never change!");
-            expect(messageLog[0].roomname).to.equal("main");
+            expect(messageLog[0].messageText).to.equal("Men like you can never change!");
+            expect(messageLog[0].roomName).to.equal("main");
             done();
           });
       });
