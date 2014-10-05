@@ -13,7 +13,7 @@ exports.postMessage = function(req, res) {
   var resultsCallback = function (results) {
       var chat = {
         message: message.message,
-        userid: results[0].id,
+        userid: results.id,
         roomname: message.roomname
       };
       saveMessage(chat.message, chat.userid, chat.roomname, function () {
